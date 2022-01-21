@@ -1,14 +1,15 @@
 const express = require("express");
 const router = express.Router();
 
+const authentication = require('../middlewares/authentication')
 const validate = require("../middlewares/validate");
 const schema = require("../validations/Blog");
 const BlogController = require("../controllers/BlogController");
 
-router.route("/").get(BlogController.list);
-router.route("/").post(validate(schema.createValidation), BlogController.create);
+router.route("/").get(authentication, BlogController.list);
+router.route("/").post(authentication, validate(schema.createValidation), BlogController.create);
 
-router.route('/:id').patch(validate(schema.createValidation), BlogController.update);
-router.route('/:id').delete(BlogController.delete);
+router.route('/:id').patch(authentication, validate(schema.createValidation), BlogController.update);
+router.route('/:id').delete(authentication, BlogController.delete);
 
 module.exports = router;
