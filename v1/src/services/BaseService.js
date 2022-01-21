@@ -15,7 +15,7 @@ class BaseService {
     delete(where) {
         return this.model?.findOneAndDelete(where);
     }
-    findOne(where) {
+    read(where) {
         return this.model?.findOne(where);
     }
 
