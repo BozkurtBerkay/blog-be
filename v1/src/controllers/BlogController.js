@@ -3,6 +3,7 @@ const httpStatus = require("http-status");
 
 const ApiError = require("../errors/ApiError");
 const BlogService = require("../services/BlogService");
+const { addImages, deleteImages } = require("../scripts/utils/blogHelper");
 
 class BlogController {
   list = async (req, res, next) => {
@@ -18,6 +19,11 @@ class BlogController {
 
   create = async (req, res, next) => {
     try {
+      if (_.isEmpty(req.files?.image))
+        return next(new ApiError("Image required", httpStatus.BAD_REQUEST));
+
+      const fileName = addImages(req.files?.image);
+      req.body.mainImgUrl = fileName;
       const blog = await BlogService.create(req.body);
       if (_.isEmpty(blog))
         return next(new ApiError("Blog Not Found", httpStatus.NOT_FOUND));
@@ -29,10 +35,26 @@ class BlogController {
 
   update = async (req, res, next) => {
     try {
-      const blog = await BlogService.update({ _id: req.params.id }, req.body);
-      if (_.isEmpty(blog))
+      if (req.files?.image != undefined) {
+        const blog = await BlogService.read({ _id: req.params.id });
+        deleteImages(blog.mainImgUrl);
+        const fileName = addImages(req.files?.image);
+        req.body.mainImgUrl = fileName;
+        const updateBlog = await BlogService.update(
+          { _id: req.params.id },
+          req.body
+        );
+        if (_.isEmpty(updateBlog))
+          return next(new ApiError("Blog Not Found", httpStatus.NOT_FOUND));
+        return res.status(httpStatus.OK).json(updateBlog);
+      }
+      const updateBlog = await BlogService.update(
+        { _id: req.params.id },
+        req.body
+      );
+      if (_.isEmpty(updateBlog))
         return next(new ApiError("Blog Not Found", httpStatus.NOT_FOUND));
-      res.status(httpStatus.OK).json(blog);
+      return res.status(httpStatus.OK).json(updateBlog);
     } catch (error) {
       next(new ApiError(error));
     }
@@ -40,12 +62,14 @@ class BlogController {
 
   delete = async (req, res, next) => {
     try {
-      const blog = await BlogService.delete({ _id: req.params.id });
-      if (_.isEmpty(blog))
+      const blog = await BlogService.read({ _id: req.params.id });
+      deleteImages(blog.mainImgUrl);
+      const deleteBlog = await BlogService.delete({ _id: req.params.id });
+      if (_.isEmpty(deleteBlog))
         return next(new ApiError("Blog Not Found", httpStatus.NOT_FOUND));
       res
         .status(httpStatus.OK)
-        .json({ message: "Blog deleted successfully", blog });
+        .json({ message: "Blog deleted successfully", deleteBlog });
     } catch (error) {
       next(new ApiError(error));
     }
