@@ -11,5 +11,6 @@ router.route("/").post(authentication, validate(schema.createValidation), BlogCo
 
 router.route('/:id').patch(authentication, validate(schema.createValidation), BlogController.update);
 router.route('/:id').delete(authentication, BlogController.delete);
+router.route('/:id').get(authentication, BlogController.find);
 
 module.exports = router;

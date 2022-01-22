@@ -17,6 +17,17 @@ class BlogController {
     }
   };
 
+  find = async (req, res, next) => {
+    try {
+      const blogs = await BlogService.read({ _id: req.params.id });
+      if (_.isEmpty(blogs))
+        return next(new ApiError("Blogs are empty", httpStatus.NOT_FOUND));
+      res.status(httpStatus.OK).json(blogs);
+    } catch (error) {
+      next(new ApiError(error));
+    }
+  };
+
   create = async (req, res, next) => {
     try {
       if (_.isEmpty(req.files?.image))
