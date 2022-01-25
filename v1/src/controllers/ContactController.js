@@ -3,6 +3,7 @@ const httpStatus = require("http-status");
 
 const ApiError = require("../errors/ApiError");
 const ContactService = require("../services/ContactService");
+const logger = require("../scripts/logger/Contact");
 
 class ContactController {
   list = async (req, res, next) => {
@@ -41,6 +42,10 @@ class ContactController {
   delete = async (req, res, next) => {
     try {
       const contact = await ContactService.delete({ _id: req.params.id });
+      logger.log({
+        level: 'info',
+        message: contact,
+      })
       if (_.isEmpty(contact))
         return next(new ApiError("Contact Not Found", httpStatus.NOT_FOUND));
       res

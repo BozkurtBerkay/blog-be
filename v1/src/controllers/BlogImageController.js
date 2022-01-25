@@ -4,6 +4,7 @@ const httpStatus = require("http-status");
 const ApiError = require("../errors/ApiError");
 const BlogImageService = require("../services/BlogImageService");
 const { addImages, deleteImages } = require("../scripts/utils/blogHelper");
+const logger = require("../scripts/logger/BlogImage");
 
 class BlogImageController {
   list = async (req, res, next) => {
@@ -74,10 +75,16 @@ class BlogImageController {
   delete = async (req, res, next) => {
     try {
       const blog = await BlogImageService.read({ _id: req.params.id });
+
       deleteImages(blog.path);
       const deleteBlog = await BlogImageService.delete({ _id: req.params.id });
       if (_.isEmpty(deleteBlog))
         return next(new ApiError("Blog Not Found", httpStatus.NOT_FOUND));
+
+      logger.log({
+        level: "info",
+        message: deleteBlog,
+      });
       res
         .status(httpStatus.OK)
         .json({ message: "Blog deleted successfully", deleteBlog });

@@ -3,6 +3,7 @@ const httpStatus = require("http-status");
 
 const ApiError = require("../errors/ApiError");
 const CategoryService = require("../services/CategoryService");
+const logger = require("../scripts/logger/Category");
 
 class CategoryController {
   list = async (req, res, next) => {
@@ -44,6 +45,10 @@ class CategoryController {
   delete = async (req, res, next) => {
     try {
       const category = await CategoryService.delete({ _id: req.params.id });
+      logger.log({
+        level: 'info',
+        message: category,
+      })
       if (_.isEmpty(category))
         return next(new ApiError("Categories are empty", httpStatus.NOT_FOUND));
       res

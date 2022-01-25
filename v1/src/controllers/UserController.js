@@ -8,6 +8,7 @@ const {
 } = require("../scripts/utils/userHelper");
 const ApiError = require("../errors/ApiError");
 const UserService = require("../services/UserService");
+const logger = require("../scripts/logger/User");
 
 class UserController {
   list = async (req, res, next) => {
@@ -74,6 +75,11 @@ class UserController {
       const user = await UserService.delete({ _id: req.user?._id });
       if (_.isEmpty(user))
         return next(new ApiError("User Not Found", httpStatus.NOT_FOUND));
+
+      logger.log({
+        level: "info",
+        message: user,
+      });
       res
         .status(httpStatus.OK)
         .json({ message: "User deleted successfully", user });
