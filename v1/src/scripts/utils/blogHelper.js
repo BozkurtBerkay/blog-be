@@ -5,7 +5,6 @@ const uuid = require("uuid");
 const ApiError = require("../../errors/ApiError");
 
 const addImages = (image) => {
-  console.log(image);
   const extensions = path.extname(image.name);
   const fileName = `${uuid.v4()}${extensions}`;
   const folderPath = path.join(__dirname, "../../", "uploads/blog", fileName);
